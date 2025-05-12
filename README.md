@@ -14,7 +14,7 @@ However, instead of focusing on containerized environments, this version targets
 - **Proxmox VE Integration**: Uses the Proxmox VE API to retrieve real-time VM resource usage information.
 - **Golang Implementation**: Written in Go (Golang), optimized for performance.
 - **HAProxy Integration**: Modifies the HAProxy configuration (`haproxy.cfg`) to adjust load balancing weights for VMs dynamically.
-- **Efficient Operation**: Continuously monitors and updates VM load distribution in a loop, with adjustments every 1000ms (can be changed).
+- **Operation**: Continuously monitors and updates VM load distribution in a loop, with adjustments every 1000ms (can be changed).
 
 ## Prerequisites
 
