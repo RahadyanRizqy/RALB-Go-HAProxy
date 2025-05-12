@@ -2,9 +2,11 @@
 
 ## Overview
 
-This repository is a part of my research (the thesis is still in draft, the complete paper will be released soon after paper trial). The topic is **"Implementation of RALB in Proxmox Virtual Environment"**, this repo provides a Golang implementation of the **Resource-Aware Least Busy (RALB)** load balancing strategy, which is inspired by the work of Bouflous et al. (2023). However, instead of focusing on containerized environments, this version targets virtual machines (VMs).
+This repository is a part of my research __(the paper is still in draft, the complete paper will be released soon after paper trial!)__. The topic is **"Implementation of RALB in Proxmox Virtual Environment"**. 
 
-The **RALB** strategy for Proxmox optimizes the allocation of incoming requests across VMs based on resource, ensuring that the least busy VM receives more traffic, resulting in better resource utilization.
+This repo provides a Golang implementation of the **Resource-Aware Least Busy (RALB)** load balancing strategy, which is inspired by the work of Bouflous et al. (2023). The link: https://www.igi-global.com/article/resource-aware-least-busy-ralb-strategy-for-load-balancing-in-containerized-cloud-systems/328094
+
+However, instead of focusing on containerized environments, this version targets virtual machines (VMs). The **RALB** strategy for Proxmox optimizes the allocation of incoming requests across VMs based on resource, ensuring that the least busy VM receives more traffic, resulting in better resource utilization.
 
 ## Features
 
