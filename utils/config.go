@@ -24,18 +24,21 @@ func LoadRalbEnv() RalbEnv {
 		log.Fatalf("Error loading .env file")
 	}
 
-	ralb, _ := strconv.Atoi(os.Getenv("RALB"))
+	ralb, _ := strconv.Atoi(os.Getenv("RALB_STATUS"))
 	delay, err := strconv.Atoi(os.Getenv("FETCH_DELAY"))
 	if err != nil {
 		delay = 1000
 	}
+
+	logger, _ := strconv.Atoi(os.Getenv("LOGGER"))
 
 	return RalbEnv{
 		APIToken:    os.Getenv("API_TOKEN"),
 		PveAPIURL:   os.Getenv("PVE_API_URL"),
 		VMNames:     parseVMMap(os.Getenv("VM_NAMES")),
 		HAProxyPath: os.Getenv("HAPROXY_PATH"),
-		RalbStatus:  ralb,
+		RalbUpdater: ralb,
+		Logger:      logger,
 		FetchDelay:  delay,
 	}
 }

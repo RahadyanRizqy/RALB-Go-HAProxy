@@ -10,14 +10,14 @@ func ResourceUsage(vm VM) float64 {
 	return math.Round(usage*100) / 100
 }
 
-func AscendingSortPriority(results []VMResult) []VMResult {
+func AscendingScoreSort(results []VMMetric) []VMMetric {
 	sort.Slice(results, func(i, j int) bool {
 		return results[i].Score < results[j].Score
 	})
 
 	// Assign priority (1 = highest priority)
 	for i := range results {
-		results[i].Priority = len(results) - i
+		results[i].Priority = len(results) - (len(results) - i) + 1
 	}
 
 	return results
