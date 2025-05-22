@@ -1,4 +1,4 @@
-package main
+package utils
 
 type VM struct {
 	ID     string  `json:"id"`
@@ -19,9 +19,9 @@ type Response struct {
 }
 
 type VMResult struct {
-	Name   string
-	Score  float64
-	Weight int
+	Name     string
+	Score    float64
+	Priority int
 }
 
 type RalbEnv struct {
@@ -30,5 +30,6 @@ type RalbEnv struct {
 	VMNames     map[string]bool
 	HAProxyPath string
 	RalbStatus  int
+	Logger      int
 	FetchDelay  int
 }

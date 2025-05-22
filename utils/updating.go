@@ -1,4 +1,4 @@
-package main
+package utils
 
 import (
 	"log"
@@ -14,10 +14,10 @@ func ModifyHAProxy(cfg RalbEnv, vmResults []VMResult) {
 		return
 	}
 	lines := strings.Split(string(input), "\n")
-	weightMap := make(map[string]int)
+	priorityMap := make(map[string]int)
 
 	for _, vm := range vmResults {
-		weightMap[vm.Name] = vm.Weight
+		priorityMap[vm.Name] = vm.Priority
 	}
 
 	for i, line := range lines {
@@ -26,10 +26,10 @@ func ModifyHAProxy(cfg RalbEnv, vmResults []VMResult) {
 			fields := strings.Fields(trimmed)
 			if len(fields) >= 8 {
 				vmName := fields[1]
-				if weight, ok := weightMap[vmName]; ok {
+				if priority, ok := priorityMap[vmName]; ok {
 					for j, f := range fields {
-						if f == "weight" && j+1 < len(fields) {
-							fields[j+1] = strconv.Itoa(weight)
+						if f == "priority" && j+1 < len(fields) {
+							fields[j+1] = strconv.Itoa(priority)
 							leading := line[:strings.Index(line, "server")]
 							lines[i] = leading + strings.Join(fields, " ")
 							break

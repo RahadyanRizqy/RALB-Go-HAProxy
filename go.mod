@@ -1,4 +1,4 @@
-module ralb_go
+module ralb_go_haproxy
 
 go 1.24.0
 

@@ -1,21 +1,17 @@
-package main
+package utils
 
 import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"io"
-	"math"
 	"net/http"
 )
 
 var client *http.Client
 
 func InitHTTPClient() {
-	tr := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-	}
-	client = &http.Client{Transport: tr}
+	client = &http.Client{Transport: &http.Transport{TLSClientConfig: &tls.Config{InsecureSkipVerify: true}}}
 }
 
 func FetchVMs(cfg RalbEnv) ([]VM, error) {
@@ -23,6 +19,7 @@ func FetchVMs(cfg RalbEnv) ([]VM, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	req.Header.Add("Authorization", cfg.APIToken)
 	req.Header.Add("Accept", "application/json")
 
@@ -43,9 +40,4 @@ func FetchVMs(cfg RalbEnv) ([]VM, error) {
 	}
 
 	return result.Data, nil
-}
-
-func ResourceUsage(vm VM) float64 {
-	usage := vm.CPU + (vm.Mem / vm.MaxMem) + (((vm.NetIn + vm.NetOut) / (1024 * 1024)) / 1000)
-	return math.Round(usage*100) / 100
 }
