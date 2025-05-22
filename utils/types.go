@@ -18,12 +18,6 @@ type Response struct {
 	Data []VM `json:"data"`
 }
 
-// type VMResult struct {
-// 	Name     string
-// 	Score    float64
-// 	Priority int
-// }
-
 type VMMetric struct {
 	Name      string
 	CPU       float64
@@ -38,7 +32,8 @@ type RalbEnv struct {
 	PveAPIURL   string
 	VMNames     map[string]bool
 	HAProxyPath string
-	RalbUpdater int
-	Logger      int
+	RalbUpdater bool
+	Logger      bool
+	RunServer   bool
 	FetchDelay  int
 }

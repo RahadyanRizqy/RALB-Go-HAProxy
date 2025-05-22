@@ -1,13 +1,14 @@
-package utils
+package funcs
 
 import (
 	"fmt"
 	"log"
 	"os"
+	"ralb_go_haproxy/utils"
 	"strings"
 )
 
-func ModifyHAProxy(cfg RalbEnv, vmResults []VMMetric) {
+func UpdateHAProxy(cfg utils.RalbEnv, vmResults []utils.VMMetric) {
 	data, err := os.ReadFile(cfg.HAProxyPath)
 	if err != nil {
 		log.Printf("Failed to read HAProxy config: %v\n", err)

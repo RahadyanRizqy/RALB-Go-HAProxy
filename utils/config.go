@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"strconv"
@@ -24,13 +25,29 @@ func LoadRalbEnv() RalbEnv {
 		log.Fatalf("Error loading .env file")
 	}
 
-	ralb, _ := strconv.Atoi(os.Getenv("RALB_STATUS"))
+	// DEFAULT VALUES
+	ralb, err := strconv.ParseBool(os.Getenv("RALB_UPDATER"))
+	if err != nil {
+		fmt.Println("Error parsing boolean:", err)
+		ralb = false
+	}
+
 	delay, err := strconv.Atoi(os.Getenv("FETCH_DELAY"))
 	if err != nil {
 		delay = 1000
 	}
 
-	logger, _ := strconv.Atoi(os.Getenv("LOGGER"))
+	logger, err := strconv.ParseBool(os.Getenv("LOGGER"))
+	if err != nil {
+		fmt.Println("Error parsing boolean:", err)
+		ralb = false
+	}
+
+	runserver, err := strconv.ParseBool(os.Getenv("RUN_SERVER"))
+	if err != nil {
+		fmt.Println("Error parsing boolean:", err)
+		runserver = false
+	}
 
 	return RalbEnv{
 		APIToken:    os.Getenv("API_TOKEN"),
@@ -39,6 +56,7 @@ func LoadRalbEnv() RalbEnv {
 		HAProxyPath: os.Getenv("HAPROXY_PATH"),
 		RalbUpdater: ralb,
 		Logger:      logger,
+		RunServer:   runserver,
 		FetchDelay:  delay,
 	}
 }

@@ -1,89 +1,73 @@
 package main
 
 import (
+	"crypto/tls"
 	"fmt"
+	"net/http"
+	"ralb_go_haproxy/funcs"
 	"ralb_go_haproxy/utils"
 	"time"
 )
 
+var client *http.Client
+
+func InitHTTPClient() {
+	client = &http.Client{
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		},
+	}
+}
+
+func HasChanged(prev, current []utils.VMMetric) bool {
+	if len(prev) != len(current) {
+		return true
+	}
+	for i := range current {
+		if current[i].Name != prev[i].Name || current[i].Priority != prev[i].Priority {
+			return true
+		}
+	}
+	return false
+}
+
 func main() {
 	cfg := utils.LoadRalbEnv()
-	utils.InitHTTPClient()
+	InitHTTPClient()
 
 	var prevResults []utils.VMMetric
-	var changeCount int = 0
+	var updateCount int
+	var logLine int = 1
+	var scrapeCount int = 1
 
 	for {
-		vms, err := utils.FetchVMs(cfg)
+		rawVMs, err := funcs.FetchVMs(cfg, client)
 		if err != nil {
-			fmt.Println("Error fetching VMs:", err)
+			fmt.Printf("[%s] Error fetching VMs: %v\n", time.Now().Format("15:04:05"), err)
 			time.Sleep(2 * time.Second)
 			continue
 		}
 
-		// var vmResults []utils.VMMetric
-		var vmMetrics []utils.VMMetric
-		for _, vm := range vms {
-			if cfg.VMNames[vm.Name] && vm.Status == "running" {
-				// vmResults = append(vmResults, utils.VMMetric{
-				// 	Name:  vm.Name,
-				// 	Score: utils.ResourceUsage(vm),
-				// })
-				vmMetrics = append(vmMetrics, utils.VMMetric{
-					Name:      vm.Name,
-					CPU:       vm.CPU,
-					Memory:    (vm.Mem / vm.MaxMem),
-					Bandwidth: (((vm.NetIn + vm.NetOut) / (1024 * 1024)) / 1000),
-					Score:     utils.ResourceUsage(vm),
-				})
-			}
-		}
+		vmMetrics := funcs.ExtractMetrics(cfg, rawVMs)
+		changed := HasChanged(prevResults, vmMetrics)
 
-		// Urutkan secara ascending dan beri/tentukan prioritas
-		vmMetrics = utils.AscendingScoreSort(vmMetrics)
-
-		// Bagian ini mengecek apakah hasil sebelumnya masih sama atau tidak
-		// Bila sama maka jangan, bila tidak sama maka atau ada perubahan maka update
-		same := len(vmMetrics) == len(prevResults)
-
-		// utils.logVMsToCSV("logs", vmMetrics)
-
-		if same {
-			for i := range vmMetrics {
-				if vmMetrics[i].Name != prevResults[i].Name || vmMetrics[i].Priority != prevResults[i].Priority {
-					same = false
-					break
-				}
-			}
-		}
-
-		if !same {
-			changeCount++
-			fmt.Printf("\n+---------------   DAFTAR VM   ----------------+\n")
-			fmt.Printf("+--- NAMA VM ---+--- SKOR ---+--- PRIORITAS ---+\n")
-			for _, usage := range vmMetrics {
-				fmt.Printf("|    %s     |    %.2f    |      %d          |\n", usage.Name, usage.Score, usage.Priority)
-			}
-			fmt.Printf("+----------------------------------------------+\n")
-			fmt.Printf("| Pembaruan ke-%d      |  %v   |\n", changeCount, time.Now().Format("2006/01/02 15:04:05"))
-			fmt.Printf("+----------------------------------------------+\n")
-			fmt.Printf("| RALB UPDATER :        | LOGGER : ")
+		if changed {
+			updateCount++
+			funcs.ConsolePrint(vmMetrics, updateCount, cfg)
 
 			prevResults = make([]utils.VMMetric, len(vmMetrics))
 			copy(prevResults, vmMetrics)
 
-			if cfg.RalbUpdater == 1 {
-				utils.ModifyHAProxy(cfg, vmMetrics)
-				fmt.Println("UPDATED")
-			} else {
-				fmt.Println("UNUPDATED")
+			if cfg.RalbUpdater {
+				funcs.UpdateHAProxy(cfg, vmMetrics)
 			}
 		}
 
-		if cfg.Logger == 1 {
-			utils.CSVLogger("data", vmMetrics, prevResults, !same)
+		if cfg.Logger {
+			utils.CSVLogger("data", vmMetrics, prevResults, updateCount, &logLine, scrapeCount)
 		}
 
+		scrapeCount++
 		time.Sleep(time.Duration(cfg.FetchDelay) * time.Millisecond)
 	}
 }

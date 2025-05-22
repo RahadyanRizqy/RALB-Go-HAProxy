@@ -1,16 +1,17 @@
-package utils
+package funcs
 
 import (
 	"math"
+	"ralb_go_haproxy/utils"
 	"sort"
 )
 
-func ResourceUsage(vm VM) float64 {
+func ResourceUsage(vm utils.VM) float64 {
 	usage := vm.CPU + (vm.Mem / vm.MaxMem) + (((vm.NetIn + vm.NetOut) / (1024 * 1024)) / 1000)
 	return math.Round(usage*100) / 100
 }
 
-func AscendingScoreSort(results []VMMetric) []VMMetric {
+func AscendingScoreSort(results []utils.VMMetric) []utils.VMMetric {
 	sort.Slice(results, func(i, j int) bool {
 		return results[i].Score < results[j].Score
 	})

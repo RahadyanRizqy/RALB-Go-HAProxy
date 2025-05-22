@@ -1,20 +1,14 @@
-package utils
+package funcs
 
 import (
-	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
+	"ralb_go_haproxy/utils"
 )
 
-var client *http.Client
-
-func InitHTTPClient() {
-	client = &http.Client{Transport: &http.Transport{TLSClientConfig: &tls.Config{InsecureSkipVerify: true}}}
-}
-
-func FetchVMs(cfg RalbEnv) ([]VM, error) {
+func FetchVMs(cfg utils.RalbEnv, client *http.Client) ([]utils.VM, error) {
 	req, err := http.NewRequest("GET", cfg.PveAPIURL+"/api2/json/cluster/resources?type=vm", nil)
 	if err != nil {
 		return nil, err
@@ -34,7 +28,7 @@ func FetchVMs(cfg RalbEnv) ([]VM, error) {
 		return nil, err
 	}
 
-	var result Response
+	var result utils.Response
 	if err := json.Unmarshal(body, &result); err != nil {
 		return nil, fmt.Errorf("error parsing JSON: %v\nraw: %s", err, string(body))
 	}
