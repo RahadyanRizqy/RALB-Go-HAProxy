@@ -1,5 +1,7 @@
 package utils
 
+import "time"
+
 type VM struct {
 	ID     string  `json:"id"`
 	Name   string  `json:"name"`
@@ -16,6 +18,14 @@ type VM struct {
 
 type Response struct {
 	Data []VM `json:"data"`
+}
+
+type BandwidthTracker struct {
+	lastGoodRX float64
+	lastGoodTX float64
+	prevNetIn  float64
+	prevNetOut float64
+	prevTime   time.Time
 }
 
 type VMMetric struct {

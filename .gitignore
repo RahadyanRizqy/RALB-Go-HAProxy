@@ -2,3 +2,7 @@ unused/*
 .env
 *.exe
 notes.txt
+test.go
+__main.go
+data/*.ini
+haproxy/*
