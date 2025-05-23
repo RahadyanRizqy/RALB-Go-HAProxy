@@ -10,14 +10,15 @@ import (
 )
 
 // Updated function to accept previous metrics and a flag whether it changed
-func CSVLogger(dir string, metrics []VMMetric, prev []VMMetric, update int, logLine *int, scrapeCount int) {
+func CSVLogger(logLine *int, updateCount int, scrapeCount int, metrics []VMMetric) {
 	// Ensure logs directory exists
+	const dir string = "data"
 	if err := os.MkdirAll(dir, 0755); err != nil {
 		fmt.Println("Error creating log directory:", err)
 		return
 	}
 
-	filename := filepath.Join(dir, "vm_metrics.csv")
+	filename := filepath.Join(dir, "vm_results.csv")
 	isNewFile := false
 
 	if _, err := os.Stat(filename); os.IsNotExist(err) {
@@ -35,7 +36,7 @@ func CSVLogger(dir string, metrics []VMMetric, prev []VMMetric, update int, logL
 	defer writer.Flush()
 
 	if isNewFile {
-		writer.Write([]string{"no", "scrape", "update", "vm_name", "cpu_usage", "mem_usage", "bw_usage", "score", "priority", "timestamp"})
+		writer.Write([]string{"no", "scrape", "update", "vm_name", "vm_id", "max_cpu", "cpu_usage", "max_mem", "mem_usage", "netin", "netout", "bw_rate", "bw_usage", "score", "priority", "timestamp"})
 	}
 	timestamp := time.Now().Format("2006-01-02 15:04:05")
 	// Write current metrics
@@ -43,13 +44,21 @@ func CSVLogger(dir string, metrics []VMMetric, prev []VMMetric, update int, logL
 		record := []string{
 			strconv.Itoa(*logLine),
 			strconv.Itoa(scrapeCount),
-			fmt.Sprintf("%d", update),
+			fmt.Sprintf("%d", updateCount),
+
 			vm.Name,
+			strconv.Itoa(vm.Id),
+			fmt.Sprintf("%f", vm.MaxCPU),
 			fmt.Sprintf("%f", vm.CPU),
-			fmt.Sprintf("%f", vm.Memory),
-			fmt.Sprintf("%f", vm.Bandwidth),
+			fmt.Sprintf("%f", vm.MaxMem),
+			fmt.Sprintf("%f", vm.Mem),
+			fmt.Sprintf("%f", vm.NetIn),
+			fmt.Sprintf("%f", vm.NetOut),
+			fmt.Sprintf("%f", vm.BandwidthRate),
+			fmt.Sprintf("%f", vm.BandwidthUsage),
 			fmt.Sprintf("%f", vm.Score),
 			fmt.Sprintf("%d", vm.Priority),
+
 			timestamp,
 		}
 		writer.Write(record)

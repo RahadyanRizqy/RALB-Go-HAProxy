@@ -3,6 +3,6 @@ unused/*
 *.exe
 notes.txt
 test.go
-__main.go
+maine.go
 data/*.ini
 haproxy/*

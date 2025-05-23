@@ -7,11 +7,10 @@ func ExtractMetrics(cfg utils.RalbEnv, vms []utils.VM) []utils.VMMetric {
 	for _, vm := range vms {
 		if cfg.VMNames[vm.Name] && vm.Status == "running" {
 			result = append(result, utils.VMMetric{
-				Name:      vm.Name,
-				CPU:       vm.CPU,
-				Memory:    vm.Mem / vm.MaxMem,
-				Bandwidth: (vm.NetIn + vm.NetOut) / (1024 * 1024) / 1000,
-				Score:     ResourceUsage(vm),
+				VM:             vm,
+				BandwidthUsage: 0,
+				BandwidthRate:  0,
+				Score:          ResourceUsage(vm),
 			})
 		}
 	}

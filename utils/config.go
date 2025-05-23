@@ -26,37 +26,61 @@ func LoadRalbEnv() RalbEnv {
 	}
 
 	// DEFAULT VALUES
-	ralb, err := strconv.ParseBool(os.Getenv("RALB_UPDATER"))
+	ralbUpdater, err := strconv.ParseBool(os.Getenv("RALB_UPDATER"))
 	if err != nil {
 		fmt.Println("Error parsing boolean:", err)
-		ralb = false
-	}
-
-	delay, err := strconv.Atoi(os.Getenv("FETCH_DELAY"))
-	if err != nil {
-		delay = 1000
+		ralbUpdater = false
 	}
 
 	logger, err := strconv.ParseBool(os.Getenv("LOGGER"))
 	if err != nil {
 		fmt.Println("Error parsing boolean:", err)
-		ralb = false
+		logger = false
 	}
 
-	runserver, err := strconv.ParseBool(os.Getenv("RUN_SERVER"))
+	fetchDelay, err := strconv.Atoi(os.Getenv("FETCH_DELAY"))
+	if err != nil {
+		fetchDelay = 1000
+	}
+
+	netIfaceRate, err := strconv.Atoi(os.Getenv("NET_IFACE_RATE"))
+	if err != nil {
+		netIfaceRate = 12500000
+	}
+
+	serverStart, err := strconv.ParseBool(os.Getenv("RUN_SERVER"))
 	if err != nil {
 		fmt.Println("Error parsing boolean:", err)
-		runserver = false
+		serverStart = false
+	}
+
+	serverPort, err := strconv.Atoi(os.Getenv("SERVER_PORT"))
+	if err != nil {
+		serverPort = 9000
+	}
+
+	serverSuccessMessage := os.Getenv("SERVER_SUCCESS_MESSAGE")
+	if serverSuccessMessage == "" {
+		serverSuccessMessage = "RALB OK!"
+	}
+
+	serverErrorMessage := os.Getenv("SERVER_ERROR_MESSAGE")
+	if serverErrorMessage == "" {
+		serverErrorMessage = "RALB NOT OK!"
 	}
 
 	return RalbEnv{
-		APIToken:    os.Getenv("API_TOKEN"),
-		PveAPIURL:   os.Getenv("PVE_API_URL"),
-		VMNames:     parseVMMap(os.Getenv("VM_NAMES")),
-		HAProxyPath: os.Getenv("HAPROXY_PATH"),
-		RalbUpdater: ralb,
-		Logger:      logger,
-		RunServer:   runserver,
-		FetchDelay:  delay,
+		APIToken:             os.Getenv("API_TOKEN"),
+		PveAPIURL:            os.Getenv("PVE_API_URL"),
+		VMNames:              parseVMMap(os.Getenv("VM_NAMES")),
+		HAProxyPath:          os.Getenv("HAPROXY_PATH"),
+		RalbUpdater:          ralbUpdater,
+		Logger:               logger,
+		FetchDelay:           fetchDelay,
+		NetIfaceRate:         netIfaceRate,
+		ServerStart:          serverStart,
+		ServerPort:           serverPort,
+		ServerSuccessMessage: serverSuccessMessage,
+		ServerErrorMessage:   serverErrorMessage,
 	}
 }

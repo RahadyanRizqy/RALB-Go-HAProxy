@@ -156,16 +156,6 @@ func main() {
 	}
 	prevTime = time.Now()
 
-	// Wait for initial non-zero values
-	for prevNetIn == 0 && prevNetOut == 0 {
-		time.Sleep(POLL_INTERVAL_SEC * time.Second)
-		prevNetIn, prevNetOut, err = getVMStats()
-		if err != nil {
-			fmt.Printf("Error getting initial non-zero values: %v\n", err)
-			continue
-		}
-	}
-
 	for {
 		time.Sleep(POLL_INTERVAL_SEC * time.Second)
 
@@ -177,11 +167,6 @@ func main() {
 				lastNetIn,
 				lastNetOut,
 				lastPercentage)
-			continue
-		}
-
-		// Skip if we got zero values
-		if currentNetIn == 0 && currentNetOut == 0 {
 			continue
 		}
 

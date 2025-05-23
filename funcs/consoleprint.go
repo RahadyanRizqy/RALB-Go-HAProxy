@@ -17,6 +17,7 @@ func ConsolePrint(vmMetrics []utils.VMMetric, updateCount int, cfg utils.RalbEnv
 	fmt.Printf("| %-16s: %-27s|\n", "TIMESTAMP", time.Now().Format("2006/01/02 15:04:05"))
 	fmt.Printf("| %-16s: %-27t|\n", "RALB UPDATER", cfg.RalbUpdater)
 	fmt.Printf("| %-16s: %-27t|\n", "LOGGER", cfg.Logger)
-	fmt.Printf("| %-16s: %-27t|\n", "RUN A SERVER", cfg.RunServer)
+	fmt.Printf("| %-16s: %-27t|\n", "SERVER START", cfg.ServerStart)
+	fmt.Printf("| %-16s: %-27t|\n", "SERVER PORT", cfg.ServerStart)
 	fmt.Printf("+----------------------------------------------+\n")
 }

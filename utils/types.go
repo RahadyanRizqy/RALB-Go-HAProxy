@@ -3,11 +3,10 @@ package utils
 import "time"
 
 type VM struct {
-	ID     string  `json:"id"`
+	Id     int     `json:"vmid"`
 	Name   string  `json:"name"`
 	Type   string  `json:"type"`
 	Status string  `json:"status"`
-	VMID   int     `json:"vmid"`
 	MaxMem float64 `json:"maxmem"`
 	MaxCPU float64 `json:"maxcpu"`
 	Mem    float64 `json:"mem"`
@@ -29,21 +28,24 @@ type BandwidthTracker struct {
 }
 
 type VMMetric struct {
-	Name      string
-	CPU       float64
-	Memory    float64
-	Bandwidth float64
-	Score     float64
-	Priority  int
+	VM
+	BandwidthRate  float64
+	BandwidthUsage float64
+	Score          float64
+	Priority       int
 }
 
 type RalbEnv struct {
-	APIToken    string
-	PveAPIURL   string
-	VMNames     map[string]bool
-	HAProxyPath string
-	RalbUpdater bool
-	Logger      bool
-	RunServer   bool
-	FetchDelay  int
+	APIToken             string
+	PveAPIURL            string
+	VMNames              map[string]bool
+	HAProxyPath          string
+	RalbUpdater          bool
+	Logger               bool
+	FetchDelay           int
+	NetIfaceRate         int
+	ServerStart          bool
+	ServerSuccessMessage string
+	ServerErrorMessage   string
+	ServerPort           int
 }
