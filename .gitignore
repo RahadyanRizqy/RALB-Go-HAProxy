@@ -2,7 +2,9 @@ unused/*
 .env
 *.exe
 notes.txt
-test.go
-maine.go
 data/*.ini
 haproxy/*
+test.go
+maine.go
+app/app2.go
+unused/*

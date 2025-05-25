@@ -4,64 +4,97 @@ import (
 	"encoding/csv"
 	"fmt"
 	"os"
-	"path/filepath"
 	"strconv"
 	"time"
 )
 
-// Updated function to accept previous metrics and a flag whether it changed
-func CSVLogger(logLine *int, updateCount int, scrapeCount int, metrics []VMMetric) {
-	// Ensure logs directory exists
-	const dir string = "data"
-	if err := os.MkdirAll(dir, 0755); err != nil {
-		fmt.Println("Error creating log directory:", err)
-		return
+func InitCSV() string {
+	// Create data directory if it doesn't exist
+	if err := os.MkdirAll("data", 0755); err != nil {
+		fmt.Printf("Error creating directory: %v\n", err)
+		return ""
 	}
 
-	filename := filepath.Join(dir, "vm_results.csv")
-	isNewFile := false
+	timestamp := time.Now().Unix()
+	filename := fmt.Sprintf("data/vm_metrics_%d.csv", timestamp)
 
-	if _, err := os.Stat(filename); os.IsNotExist(err) {
-		isNewFile = true
-	}
-
-	file, err := os.OpenFile(filename, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	// Create and open the file
+	file, err := os.Create(filename)
 	if err != nil {
-		fmt.Println("Error opening CSV file:", err)
-		return
+		fmt.Printf("Error creating file: %v\n", err)
+		return ""
+	}
+	defer file.Close()
+
+	// Write headers
+	writer := csv.NewWriter(file)
+	headers := []string{
+		"no", "fetch", "update", "vm_id", "vm_name", "cpu_usage", "max_cpu",
+		"mem_usage", "max_mem", "cum_netin", "cum_netout", "rate_netin",
+		"rate_netout", "bw_usage", "max_bw", "score", "priority",
+		"unix_timestamp", "timestamp",
+	}
+	if err := writer.Write(headers); err != nil {
+		fmt.Printf("Error writing headers: %v\n", err)
+		return ""
+	}
+	writer.Flush()
+
+	return filename
+}
+
+func StoreCSV(
+	filename string,
+	logLine *int,
+	fetchCount int,
+	updateCount int,
+	unix_timestamp int64,
+	timestamp string,
+	stats map[string]VMStats,
+	ranked map[string]VMPriority,
+	netIfaceRate float64,
+) error {
+	file, err := os.OpenFile(filename, os.O_APPEND|os.O_WRONLY, 0644)
+	if err != nil {
+		return fmt.Errorf("error opening file: %v", err)
 	}
 	defer file.Close()
 
 	writer := csv.NewWriter(file)
 	defer writer.Flush()
 
-	if isNewFile {
-		writer.Write([]string{"no", "scrape", "update", "vm_name", "vm_id", "max_cpu", "cpu_usage", "max_mem", "mem_usage", "netin", "netout", "bw_rate", "bw_usage", "score", "priority", "timestamp"})
-	}
-	timestamp := time.Now().Format("2006-01-02 15:04:05")
-	// Write current metrics
-	for _, vm := range metrics {
+	for name, stat := range stats {
+		priority := ranked[name].Priority
+		bw_usage := (stat.BwUsage / netIfaceRate)
+		mem_usage := (stat.MemUsage)
+		cpu_usage := stat.VM.CPU
+
 		record := []string{
 			strconv.Itoa(*logLine),
-			strconv.Itoa(scrapeCount),
-			fmt.Sprintf("%d", updateCount),
-
-			vm.Name,
-			strconv.Itoa(vm.Id),
-			fmt.Sprintf("%f", vm.MaxCPU),
-			fmt.Sprintf("%f", vm.CPU),
-			fmt.Sprintf("%f", vm.MaxMem),
-			fmt.Sprintf("%f", vm.Mem),
-			fmt.Sprintf("%f", vm.NetIn),
-			fmt.Sprintf("%f", vm.NetOut),
-			fmt.Sprintf("%f", vm.BandwidthRate),
-			fmt.Sprintf("%f", vm.BandwidthUsage),
-			fmt.Sprintf("%f", vm.Score),
-			fmt.Sprintf("%d", vm.Priority),
-
+			strconv.Itoa(fetchCount),
+			strconv.Itoa(updateCount),
+			strconv.Itoa(stat.VM.Id),
+			stat.VM.Name,
+			strconv.FormatFloat(cpu_usage, 'f', -1, 64),
+			strconv.Itoa(stat.VM.MaxCPU),
+			strconv.FormatFloat(mem_usage, 'f', -1, 64),
+			strconv.Itoa(stat.VM.MaxMem),
+			strconv.Itoa(stat.VM.CumNetIn),
+			strconv.Itoa(stat.VM.CumNetOut),
+			strconv.FormatFloat(stat.Rates.Rx, 'f', -1, 64),
+			strconv.FormatFloat(stat.Rates.Tx, 'f', -1, 64),
+			strconv.FormatFloat(bw_usage, 'f', -1, 64),
+			strconv.FormatFloat(netIfaceRate, 'f', -1, 64),
+			strconv.FormatFloat(cpu_usage+mem_usage+bw_usage, 'f', -1, 64),
+			strconv.Itoa(priority),
+			strconv.FormatInt(unix_timestamp, 10),
 			timestamp,
 		}
-		writer.Write(record)
+
+		if err := writer.Write(record); err != nil {
+			return fmt.Errorf("error writing record: %v", err)
+		}
 		*logLine++
 	}
+	return nil
 }

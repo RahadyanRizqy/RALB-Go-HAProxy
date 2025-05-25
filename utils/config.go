@@ -43,12 +43,12 @@ func LoadRalbEnv() RalbEnv {
 		fetchDelay = 1000
 	}
 
-	netIfaceRate, err := strconv.Atoi(os.Getenv("NET_IFACE_RATE"))
+	netIfaceRate, err := strconv.ParseFloat(os.Getenv("NET_IFACE_RATE"), 64)
 	if err != nil {
 		netIfaceRate = 12500000
 	}
 
-	serverStart, err := strconv.ParseBool(os.Getenv("RUN_SERVER"))
+	serverStart, err := strconv.ParseBool(os.Getenv("SERVER_START"))
 	if err != nil {
 		fmt.Println("Error parsing boolean:", err)
 		serverStart = false
