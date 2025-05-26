@@ -1,7 +1,5 @@
 package utils
 
-import "time"
-
 type VM struct {
 	Id        int     `json:"vmid"`
 	Name      string  `json:"name"`
@@ -42,15 +40,15 @@ type VMStats struct {
 	MemUsage float64
 }
 
-type VMLogs struct {
-	VM        VM
-	Score     float64
-	RxRate    float64
-	TxRate    float64
-	MemUsage  float64
-	BwUsage   float64
-	Timestamp time.Time
-}
+// type VMLogs struct {
+// 	VM        VM
+// 	Score     float64
+// 	RxRate    float64
+// 	TxRate    float64
+// 	MemUsage  float64
+// 	BwUsage   float64
+// 	Timestamp time.Time
+// }
 
 type RalbEnv struct {
 	APIToken             string

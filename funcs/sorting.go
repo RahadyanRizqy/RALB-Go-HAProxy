@@ -1,25 +1,29 @@
 package funcs
 
-// import (
-// 	"math"
-// 	"ralb_go_haproxy/utils"
-// 	"sort"
-// )
+import (
+	"ralb_go_haproxy/utils"
+	"sort"
+)
 
-// func ResourceUsage(vm utils.VM) float64 {
-// 	usage := vm.CPU + (vm.Mem / vm.MaxMem) + (((vm.NetIn + vm.NetOut) / (1024 * 1024)) / 1000)
-// 	return math.Round(usage*100) / 100
-// }
+func ScorePriority(stats map[string]utils.VMStats) map[string]utils.VMPriority {
+	var sorted []utils.KV
+	for name, stat := range stats {
+		sorted = append(sorted, utils.KV{Key: name, Value: stat.Score})
+	}
 
-// func AscendingScoreSort(results []utils.VMMetric) []utils.VMMetric {
-// 	sort.Slice(results, func(i, j int) bool {
-// 		return results[i].Score < results[j].Score
-// 	})
+	// Sort by value
+	sort.Slice(sorted, func(i, j int) bool {
+		return sorted[i].Value < sorted[j].Value
+	})
 
-// 	// Assign priority (1 = highest priority)
-// 	for i := range results {
-// 		results[i].Priority = len(results) - (len(results) - i) + 1
-// 	}
+	// Build ranked map
+	result := make(map[string]utils.VMPriority)
+	for i, item := range sorted {
+		result[item.Key] = utils.VMPriority{
+			Value:    item.Value,
+			Priority: i + 1,
+		}
+	}
 
-// 	return results
-// }
+	return result
+}
