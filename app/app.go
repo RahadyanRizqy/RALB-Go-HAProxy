@@ -62,16 +62,19 @@ func Start() {
 			if prevScore, exists := prevScores[vm.Name]; exists {
 				if stats.Score != prevScore {
 					scoreChanged = true
+
 				}
-			} else {
-				scoreChanged = true
 			}
+			// else {
+			// 	// scoreChanged = true
+			// 	updateCount++
+			// }
 		}
 
 		// Print notification if scores changed
 		if scoreChanged {
-			fmt.Printf("\n=== NEW SCORE DETECTED (Update #%d) ===\n", updateCount)
 			updateCount++
+			fmt.Printf("\n=== NEW SCORE DETECTED (Update #%d) ===\n", updateCount)
 		}
 
 		// Print current metrics
