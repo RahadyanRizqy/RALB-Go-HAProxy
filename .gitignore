@@ -8,3 +8,4 @@ test.go
 maine.go
 app/app2.go
 unused/*
+data/

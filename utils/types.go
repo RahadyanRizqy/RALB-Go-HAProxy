@@ -20,6 +20,7 @@ type Response struct {
 type VMPriority struct {
 	Value    float64
 	Priority int
+	Weight   int
 }
 
 type ActiveRates struct {
@@ -53,9 +54,17 @@ type VMStats struct {
 type RalbEnv struct {
 	APIToken             string
 	PveAPIURL            string
+	HAProxySock          string
+	HAProxyBackend       string
+	HAProxyWeight        int
 	VMNames              map[string]bool
+	VMIPs                map[string]bool
+	VMMap                map[string]string
 	HAProxyPath          string
 	RalbUpdater          bool
+	UpdateNotify         bool
+	HAProxySetWeight     bool
+	ConsolePrint         bool
 	Logger               bool
 	FetchDelay           int
 	NetIfaceRate         float64

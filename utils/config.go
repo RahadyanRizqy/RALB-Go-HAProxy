@@ -32,6 +32,24 @@ func LoadRalbEnv() RalbEnv {
 		ralbUpdater = false
 	}
 
+	updateNotify, err := strconv.ParseBool(os.Getenv("UPDATE_NOTIFY"))
+	if err != nil {
+		fmt.Println("Error parsing boolean:", err)
+		updateNotify = false
+	}
+
+	haproxyWeight, err := strconv.Atoi(os.Getenv("HAPROXY_WEIGHT"))
+	if err != nil {
+		fmt.Println("2. Error parsing boolean:", err)
+		haproxyWeight = 256
+	}
+
+	consolePrint, err := strconv.ParseBool(os.Getenv("CONSOLE_PRINT"))
+	if err != nil {
+		fmt.Println("Error parsing boolean:", err)
+		consolePrint = false
+	}
+
 	logger, err := strconv.ParseBool(os.Getenv("LOGGER"))
 	if err != nil {
 		fmt.Println("Error parsing boolean:", err)
@@ -72,9 +90,15 @@ func LoadRalbEnv() RalbEnv {
 	return RalbEnv{
 		APIToken:             os.Getenv("API_TOKEN"),
 		PveAPIURL:            os.Getenv("PVE_API_URL"),
+		HAProxySock:          os.Getenv("HAPROXY_SOCK"),
+		HAProxyBackend:       os.Getenv("HAPROXY_BACKEND"),
 		VMNames:              parseVMMap(os.Getenv("VM_NAMES")),
+		VMIPs:                parseVMMap(os.Getenv("VM_IPS")),
 		HAProxyPath:          os.Getenv("HAPROXY_PATH"),
 		RalbUpdater:          ralbUpdater,
+		UpdateNotify:         updateNotify,
+		HAProxyWeight:        haproxyWeight,
+		ConsolePrint:         consolePrint,
 		Logger:               logger,
 		FetchDelay:           fetchDelay,
 		NetIfaceRate:         netIfaceRate,

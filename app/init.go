@@ -31,11 +31,11 @@ func InitClient() {
 func Start() {
 	InitClient()
 	cfg := utils.LoadRalbEnv()
-	csvFileName := utils.InitCSV()
+	csvFileName := utils.InitCSV(cfg)
 	prevTime := time.Now()
 
 	for {
-		time.Sleep(1 * time.Second)
+		time.Sleep(time.Duration(cfg.FetchDelay) * time.Millisecond)
 		now := time.Now()
 		delta := now.Sub(prevTime).Seconds()
 		fetchCount++
@@ -55,7 +55,7 @@ func Start() {
 				continue
 			}
 
-			stats := funcs.PreviousStats(vm, delta, lastValidRates, prevStats, activeRates)
+			stats := funcs.PreviousStats(vm, delta, cfg.NetIfaceRate, lastValidRates, prevStats, activeRates)
 			currentStats[vm.Name] = stats
 
 			// Check for score changes
@@ -65,27 +65,28 @@ func Start() {
 
 				}
 			}
-			// else {
-			// 	// scoreChanged = true
-			// 	updateCount++
-			// }
 		}
 
+		rankedVMs := funcs.ScorePriority(currentStats)
+		rankedWithWeight := funcs.AssignWeightByPriority(rankedVMs, cfg)
 		// Print notification if scores changed
 		if scoreChanged {
 			updateCount++
-			fmt.Printf("\n=== NEW SCORE DETECTED (Update #%d) ===\n", updateCount)
+			if cfg.UpdateNotify {
+				fmt.Printf("\n=== NEW SCORE DETECTED (Update #%d) ===\n", updateCount)
+			}
+			funcs.UpdateHAProxy(cfg, rankedWithWeight)
 		}
 
-		// Print current metrics
-		fmt.Printf("\n[%s] Fetch #%d\n", now.Format("15:04:05"), fetchCount)
+		// // Print current metrics
+		// fmt.Printf("\n[%s] Fetch #%d\n", now.Format("15:04:05"), fetchCount)
 
 		// Sort and rank VMs by score
-		rankedVMs := funcs.ScorePriority(currentStats)
 
 		// Print full VM stats
-		utils.ConsolePrint(currentStats, rankedVMs, cfg.NetIfaceRate)
+		utils.ConsolePrint(cfg, currentStats, rankedVMs, cfg.NetIfaceRate)
 		utils.StoreCSV(
+			cfg,
 			csvFileName,
 			&logLine,
 			fetchCount,
@@ -93,7 +94,7 @@ func Start() {
 			now.Unix(),
 			now.Format("2006-01-02 15:04:05"),
 			currentStats,
-			rankedVMs,
+			rankedWithWeight,
 			cfg.NetIfaceRate)
 
 		// Update previous state
