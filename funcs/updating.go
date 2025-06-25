@@ -199,10 +199,6 @@ func AssignWeightByPriority(ranked map[string]utils.VMPriority, cfg utils.RalbEn
 // }
 
 func UpdateHAProxy(cfg utils.RalbEnv, ranked map[string]utils.VMPriority) error {
-	if !cfg.HAProxySetWeight {
-		return nil
-	}
-
 	// Ambil backend dan path sock
 	backend := cfg.HAProxyBackend
 	sockPath := cfg.HAProxySock
