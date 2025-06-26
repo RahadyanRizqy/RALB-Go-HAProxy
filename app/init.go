@@ -29,6 +29,7 @@ func InitClient() {
 }
 
 func Start() {
+	fmt.Println("RALB Started!")
 	InitClient()
 	cfg := utils.LoadRalbEnv()
 	csvFileName := utils.InitCSV(cfg)
