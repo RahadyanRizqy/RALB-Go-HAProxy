@@ -73,8 +73,8 @@ func Start() {
 		}
 
 		if weightChanged {
-			fmt.Println("NEW WEIGHT!")
-			fmt.Println(rankedWeight)
+			// fmt.Println("NEW WEIGHT!")
+			// fmt.Println(rankedWeight)
 			funcs.ChangeWeight(cfg, rankedWeight)
 			updateCount++
 		}
