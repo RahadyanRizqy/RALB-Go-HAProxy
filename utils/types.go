@@ -41,16 +41,6 @@ type VMStats struct {
 	MemUsage float64
 }
 
-// type VMLogs struct {
-// 	VM        VM
-// 	Score     float64
-// 	RxRate    float64
-// 	TxRate    float64
-// 	MemUsage  float64
-// 	BwUsage   float64
-// 	Timestamp time.Time
-// }
-
 type RalbEnv struct {
 	APIToken             string
 	PveAPIURL            string

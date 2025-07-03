@@ -50,7 +50,7 @@ func DistributeWeights(arr []int, weightTotal int) []int {
 	return result
 }
 
-func AssignWeightByPriority(ranked map[string]utils.VMPriority, cfg utils.RalbEnv) map[string]utils.VMPriority {
+func WeightAssignment(ranked map[string]utils.VMPriority, cfg utils.RalbEnv) map[string]utils.VMPriority {
 	n := len(ranked)
 
 	// Buat array bobot berdasarkan deret (1,2,...,n)
@@ -82,7 +82,7 @@ func AssignWeightByPriority(ranked map[string]utils.VMPriority, cfg utils.RalbEn
 	return result
 }
 
-func UpdateHAProxy(cfg utils.RalbEnv, ranked map[string]utils.VMPriority) error {
+func ChangeWeight(cfg utils.RalbEnv, ranked map[string]utils.VMPriority) error {
 	// Ambil backend dan path sock
 	backend := cfg.HAProxyBackend
 	sockPath := cfg.HAProxySock

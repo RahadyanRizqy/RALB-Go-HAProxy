@@ -12,7 +12,6 @@ import (
 var (
 	prevStats      = make(map[string]utils.VM)
 	prevScores     = make(map[string]float64)
-	prevWeights    = make(map[string]int)
 	activeRates    = make(map[string]utils.ActiveRates)
 	lastValidRates = make(map[string]utils.ActiveRates)
 	client         *http.Client
@@ -55,33 +54,20 @@ func Start() {
 			if !cfg.VMNames[vm.Name] {
 				continue
 			}
+
 			stats := funcs.PreviousStats(vm, delta, cfg.NetIfaceRate, lastValidRates, prevStats, activeRates)
 			currentStats[vm.Name] = stats
+
+			// if prevScore, exists := prevScores[vm.Name]; exists {
+			// 	if stats.Score != prevScore {
+			// 		scoreChanged = true
+
+			// 	}
+			// }
 		}
 
 		rankedVMs := funcs.ScorePriority(currentStats)
-		rankedWeight := funcs.WeightAssignment(rankedVMs, cfg)
-
-		weightChanged := false
-
-		for name, current := range rankedWeight {
-			previousWeight, exists := prevWeights[name]
-			if !exists || previousWeight != current.Weight {
-				weightChanged = true
-				break
-			}
-		}
-
-		if weightChanged {
-			fmt.Println("NEW WEIGHT!")
-			fmt.Println(rankedWeight)
-			funcs.ChangeWeight(cfg, rankedWeight)
-			updateCount++
-		}
-
-		for name, current := range rankedWeight {
-			prevWeights[name] = current.Weight
-		}
+		rankedWithWeight := funcs.AssignWeightByPriority(rankedVMs, cfg)
 		// Print notification if scores changed
 		// if scoreChanged {
 		// 	updateCount++
@@ -109,7 +95,7 @@ func Start() {
 			now.Unix(),
 			now.Format("2006-01-02 15:04:05"),
 			currentStats,
-			rankedWeight,
+			rankedWithWeight,
 			cfg.NetIfaceRate)
 
 		// Update previous state
