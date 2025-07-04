@@ -62,12 +62,10 @@ func Start() {
 		rankedVMs := funcs.ScorePriority(currentStats)
 		rankedWeight := funcs.WeightAssignment(rankedVMs, cfg)
 
-		weightChanged := false
-
+		weightChanged := true
 		for name, current := range rankedWeight {
-			previousWeight, exists := prevWeights[name]
-			if !exists || previousWeight != current.Weight {
-				weightChanged = true
+			if prev, ok := prevWeights[name]; ok && prev == current.Weight {
+				weightChanged = false
 				break
 			}
 		}
