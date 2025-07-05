@@ -2,7 +2,7 @@ package funcs
 
 import "ralb_go_haproxy/utils"
 
-func PreviousStats(vm utils.VM, delta float64, netIfaceRate float64, lastValidRates map[string]utils.ActiveRates, prevStats map[string]utils.VM, activeRates map[string]utils.ActiveRates) utils.VMStats {
+func CalcPreviousStats(vm utils.VM, delta float64, netIfaceRate float64, lastValidRates map[string]utils.ActiveRates, prevStats map[string]utils.VM, activeRates map[string]utils.ActiveRates) utils.VMStats {
 	stats := utils.VMStats{VM: vm}
 
 	// Calculate network rates

@@ -4,7 +4,7 @@ import (
 	"fmt"
 )
 
-func ConsolePrint(cfg RalbEnv, stats map[string]VMStats, ranked map[string]VMPriority, netIfaceRate float64) error {
+func ConsolePrint(cfg RalbEnv, stats map[string]VMStats, ranked map[string]VMRank, netIfaceRate float64) error {
 	if cfg.ConsolePrint {
 		fmt.Println("\n== Detailed VM Stats ==")
 		for name, stat := range stats {

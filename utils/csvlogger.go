@@ -55,7 +55,7 @@ func StoreCSV(
 	unix_timestamp int64,
 	timestamp string,
 	stats map[string]VMStats,
-	ranked map[string]VMPriority,
+	ranked map[string]VMRank,
 	netIfaceRate float64,
 ) error {
 	if cfg.Logger {

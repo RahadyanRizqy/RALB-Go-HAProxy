@@ -8,7 +8,7 @@ import (
 	"ralb_go_haproxy/utils"
 )
 
-func FetchVMs(cfg utils.RalbEnv, client *http.Client) ([]utils.VM, error) {
+func FetchStats(cfg utils.RalbEnv, client *http.Client) ([]utils.VM, error) {
 	req, err := http.NewRequest("GET", cfg.PveAPIURL+"/api2/json/cluster/resources?type=vm", nil)
 	if err != nil {
 		return nil, err

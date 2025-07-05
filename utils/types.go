@@ -23,6 +23,12 @@ type VMPriority struct {
 	Weight   int
 }
 
+type VMRank struct {
+	Value    float64
+	Priority int
+	Weight   int
+}
+
 type ActiveRates struct {
 	Rx float64 // Receive rate in bytes/sec
 	Tx float64 // Transmit rate in bytes/sec
@@ -62,4 +68,5 @@ type RalbEnv struct {
 	ServerSuccessMessage string
 	ServerErrorMessage   string
 	ServerPort           int
+	Strict               bool
 }

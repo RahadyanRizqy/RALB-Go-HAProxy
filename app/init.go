@@ -39,65 +39,71 @@ func Start() {
 	for {
 		time.Sleep(time.Duration(cfg.FetchDelay) * time.Millisecond)
 		now := time.Now()
-		delta := now.Sub(prevTime).Seconds()
+		delta := now.Sub(prevTime).Seconds() // To differentiate bandwidth rate
 		fetchCount++
 
-		stats, err := funcs.FetchVMs(cfg, client)
+		/*
+			FetchStats() to fetch VM stats from Proxmox VE API for logging and RALB
+		*/
+		stats, err := funcs.FetchStats(cfg, client)
 		if err != nil {
 			fmt.Printf("Polling error: %v\n", err)
 			continue
 		}
 
-		// Process VM stats and calculate metrics
+		/*
+			Calculate Previous Stats to calculate rate between fetches by calculating it's delta
+		*/
 		currentStats := make(map[string]utils.VMStats)
-
 		for _, vm := range stats {
 			if !cfg.VMNames[vm.Name] {
 				continue
 			}
-			stats := funcs.PreviousStats(vm, delta, cfg.NetIfaceRate, lastValidRates, prevStats, activeRates)
-			currentStats[vm.Name] = stats
+			currentStats[vm.Name] = funcs.CalcPreviousStats(vm, delta, cfg.NetIfaceRate, lastValidRates, prevStats, activeRates)
 		}
 
-		rankedVMs := funcs.ScorePriority(currentStats)
-		rankedWeight := funcs.WeightAssignment(rankedVMs, cfg)
+		/*
+			Ranked Result
+		*/
+		rankedResult := funcs.CalcScorePriorityWeight(currentStats, cfg)
 
-		weightChanged := true
-		for name, current := range rankedWeight {
-			if prev, ok := prevWeights[name]; ok && prev == current.Weight {
-				weightChanged = false
+		/*
+			At least 1 VM is updated
+		*/
+		var weightChanged bool = false
+
+		for name, current := range rankedResult {
+			if prev, ok := prevWeights[name]; !ok || prev != current.Weight {
+				weightChanged = true
 				break
 			}
 		}
 
+		/*
+			if new weight detected change the weight
+		*/
 		if weightChanged {
-			// fmt.Println("NEW WEIGHT!")
-			// fmt.Println(rankedWeight)
-			funcs.ChangeWeight(cfg, rankedWeight)
+			fmt.Println(rankedResult)
+			funcs.SetWeight(rankedResult, cfg)
 			updateCount++
+			fmt.Println("Update ke-", updateCount)
 		}
 
-		for name, current := range rankedWeight {
+		/*
+			update the previous weight to differentiate the previous and current
+		*/
+		for name, current := range rankedResult {
 			prevWeights[name] = current.Weight
 		}
-		// Print notification if scores changed
-		// if scoreChanged {
-		// 	updateCount++
-		// 	if cfg.UpdateNotify {
-		// 		fmt.Printf("\n=== NEW SCORE DETECTED (Update #%d) ===\n", updateCount)
-		// 	}
-		// 	funcs.UpdateHAProxy(cfg, rankedWithWeight)
-		// }
 
-		// Print notification if scores changed
+		/*
+			Console Print
+		*/
+		// utils.ConsolePrint(cfg, currentStats, rankedResult, cfg.NetIfaceRate)
 
-		// // Print current metrics
-		// fmt.Printf("\n[%s] Fetch #%d\n", now.Format("15:04:05"), fetchCount)
-
-		// Sort and rank VMs by score
-
-		// Print full VM stats
-		utils.ConsolePrint(cfg, currentStats, rankedVMs, cfg.NetIfaceRate)
+		/*
+			Log the Result to CSV
+		*/
 		utils.StoreCSV(
 			cfg,
 			csvFileName,
@@ -107,7 +113,7 @@ func Start() {
 			now.Unix(),
 			now.Format("2006-01-02 15:04:05"),
 			currentStats,
-			rankedWeight,
+			rankedResult,
 			cfg.NetIfaceRate)
 
 		// Update previous state

@@ -87,6 +87,12 @@ func LoadRalbEnv() RalbEnv {
 		serverErrorMessage = "RALB NOT OK!"
 	}
 
+	strict, err := strconv.ParseBool(os.Getenv("STRICT"))
+	if err != nil {
+		fmt.Println("Error parsing boolean:", err)
+		strict = false
+	}
+
 	return RalbEnv{
 		APIToken:             os.Getenv("API_TOKEN"),
 		PveAPIURL:            os.Getenv("PVE_API_URL"),
@@ -106,5 +112,6 @@ func LoadRalbEnv() RalbEnv {
 		ServerPort:           serverPort,
 		ServerSuccessMessage: serverSuccessMessage,
 		ServerErrorMessage:   serverErrorMessage,
+		Strict:               strict,
 	}
 }
