@@ -17,12 +17,6 @@ type Response struct {
 	Data []VM `json:"data"`
 }
 
-type VMPriority struct {
-	Value    float64
-	Priority int
-	Weight   int
-}
-
 type VMRank struct {
 	Value    float64
 	Priority int

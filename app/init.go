@@ -99,7 +99,7 @@ func Start() {
 		/*
 			Console Print
 		*/
-		// utils.ConsolePrint(cfg, currentStats, rankedResult, cfg.NetIfaceRate)
+		utils.ConsolePrint(cfg, currentStats, rankedResult, cfg.NetIfaceRate)
 
 		/*
 			Log the Result to CSV
@@ -116,7 +116,9 @@ func Start() {
 			rankedResult,
 			cfg.NetIfaceRate)
 
-		// Update previous state
+		/*
+			Update previous stats
+		*/
 		funcs.UpdatePreviousState(prevStats, prevScores, currentStats)
 		prevTime = now
 	}
