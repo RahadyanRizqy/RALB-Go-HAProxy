@@ -99,7 +99,7 @@ func Start() {
 		/*
 			Console Print
 		*/
-		utils.ConsolePrint(cfg, currentStats, rankedResult, cfg.NetIfaceRate)
+		utils.ConsolePrint(currentStats, rankedResult, cfg)
 
 		/*
 			Log the Result to CSV
