@@ -36,6 +36,7 @@ func Start() {
 	csvFileName := utils.InitCSV(cfg)
 	prevTime := time.Now()
 
+	iter := 1
 	for {
 		time.Sleep(time.Duration(cfg.FetchDelay) * time.Millisecond)
 		now := time.Now()
@@ -65,41 +66,36 @@ func Start() {
 		/*
 			Ranked Result
 		*/
-		rankedResult := funcs.CalcScorePriorityWeight(currentStats, cfg)
+		currentRes := funcs.CalcScorePriorityWeight(currentStats, cfg)
 
 		/*
-			At least 1 VM is updated
+			Strict or Loose
 		*/
-		var weightChanged bool = false
+		if cfg.Strict { // Strict means new weight of each VM must different from previous one
+			validate1 := funcs.AllWeightValidation(currentRes, prevWeights)
 
-		for name, current := range rankedResult {
-			if prev, ok := prevWeights[name]; !ok || prev != current.Weight {
-				weightChanged = true
-				break
+			if validate1 {
+				updateCount++
+				fmt.Printf("✅ UPDATE COUNT %d ITER COUNT %d", updateCount, iter)
+				funcs.SetWeight(currentRes, cfg)
+				utils.ConsolePrint(currentStats, currentRes, cfg)
+				for name, info := range currentRes {
+					prevWeights[name] = info.Weight // update previous
+				}
+			}
+		} else { // Loose means new weight of each VM has swapped not all but some
+			validate2 := funcs.SomeWeightValidation(currentRes, prevWeights)
+
+			if validate2 {
+				updateCount++
+				fmt.Printf("✅ UPDATE COUNT %d ITER COUNT %d", updateCount, iter)
+				funcs.SetWeight(currentRes, cfg)
+				utils.ConsolePrint(currentStats, currentRes, cfg)
+				for name, info := range currentRes {
+					prevWeights[name] = info.Weight // update previous
+				}
 			}
 		}
-
-		/*
-			if new weight detected change the weight
-		*/
-		if weightChanged {
-			fmt.Println(rankedResult)
-			funcs.SetWeight(rankedResult, cfg)
-			updateCount++
-			fmt.Println("Update ke-", updateCount)
-		}
-
-		/*
-			update the previous weight to differentiate the previous and current
-		*/
-		for name, current := range rankedResult {
-			prevWeights[name] = current.Weight
-		}
-
-		/*
-			Console Print
-		*/
-		utils.ConsolePrint(currentStats, rankedResult, cfg)
 
 		/*
 			Log the Result to CSV
@@ -113,7 +109,7 @@ func Start() {
 			now.Unix(),
 			now.Format("2006-01-02 15:04:05"),
 			currentStats,
-			rankedResult,
+			currentRes,
 			cfg.NetIfaceRate)
 
 		/*
@@ -121,5 +117,7 @@ func Start() {
 		*/
 		funcs.UpdatePreviousState(prevStats, prevScores, currentStats)
 		prevTime = now
+
+		iter++
 	}
 }

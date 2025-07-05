@@ -6,6 +6,30 @@ import (
 	"ralb_go_haproxy/utils"
 )
 
+func AllWeightValidation(current map[string]utils.VMRank, previous map[string]int) bool {
+	for name, info := range current {
+		prev, ok := previous[name]
+		if !ok {
+			continue // Tidak ada data sebelumnya → anggap valid
+		}
+		if info.Weight == prev {
+			return false // Ada satu saja yang sama → tidak valid
+		}
+	}
+	return true // Semua weight berbeda dari sebelumnya
+}
+
+func SomeWeightValidation(current map[string]utils.VMRank, previous map[string]int) bool {
+	for name, info := range current {
+		prev, ok := previous[name]
+		if !ok || info.Weight != prev {
+			// Ada satu saja VM yang belum pernah dicek (prev=0) atau weight-nya berubah
+			return true
+		}
+	}
+	return false // Semua weight sama dengan sebelumnya
+}
+
 func SetWeight(ranked map[string]utils.VMRank, cfg utils.RalbEnv) error {
 	// Ambil backend dan path sock
 	backend := cfg.HAProxyBackend
