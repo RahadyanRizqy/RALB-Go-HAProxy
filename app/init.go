@@ -10,6 +10,7 @@ import (
 )
 
 var (
+	cfg            = utils.LoadRalbEnv() // Load Env
 	prevStats      = make(map[string]utils.VM)
 	prevScores     = make(map[string]float64)
 	prevWeights    = make(map[string]int)
@@ -31,8 +32,14 @@ func InitClient() {
 
 func Start() {
 	fmt.Println("RALB Started!")
+	if cfg.Strict {
+		fmt.Println("Strict mode!")
+	}
+
+	/*
+		Initialization of HTTP Client for FetchStats()
+	*/
 	InitClient()
-	cfg := utils.LoadRalbEnv()
 	csvFileName := utils.InitCSV(cfg)
 	prevTime := time.Now()
 
