@@ -34,10 +34,6 @@ func InitClient() {
 
 func Start() {
 	fmt.Println("RALB Started!")
-	if cfg.Strict {
-		fmt.Println("Strict mode!")
-	}
-
 	/*
 		Initialization of HTTP Client for FetchStats()
 	*/
