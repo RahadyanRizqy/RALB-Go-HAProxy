@@ -44,7 +44,7 @@ func InitCSV(cfg RalbEnv) string {
 			fmt.Printf("Error creating file: %v\n", err)
 			return ""
 		}
-		defer file.Close()
+		defer file.Close() // Last In First Out or LIFO
 
 		// Write headers
 		writer := csv.NewWriter(file)

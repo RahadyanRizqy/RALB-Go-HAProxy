@@ -10,12 +10,12 @@ import (
 )
 
 var (
-	cfg            = utils.LoadRalbEnv() // Load Env
-	prevStats      = make(map[string]utils.VM)
-	prevScores     = make(map[string]float64)
+	cfg       = utils.LoadRalbEnv()       // Load Env
+	prevStats = make(map[string]utils.VM) // save current all data of prev to be calculated later
+	// prevScores     = make(map[string]float64)
 	prevWeights    = make(map[string]int)
-	activeRates    = make(map[string]utils.ActiveRates)
-	lastValidRates = make(map[string]utils.ActiveRates)
+	currentRates   = make(map[string]utils.ActiveRates) //
+	lastValidRates = make(map[string]utils.ActiveRates) //
 	client         *http.Client
 	fetchCount     int
 	updateCount    int
@@ -65,7 +65,7 @@ func Start() {
 			if !cfg.VMNames[vm.Name] {
 				continue
 			}
-			currentStats[vm.Name] = funcs.CalcPreviousStats(vm, delta, cfg.NetIfaceRate, lastValidRates, prevStats, activeRates)
+			currentStats[vm.Name] = funcs.CalcPreviousStats(vm, delta, cfg.NetIfaceRate, lastValidRates, prevStats, currentRates)
 		}
 
 		/*
@@ -90,11 +90,11 @@ func Start() {
 				fmt.Printf("✅ [%s] UPDATE COUNT %d ITER COUNT %d\n", mode, updateCount, iter)
 			}
 			funcs.SetWeight(currentRes, cfg)
-			utils.ConsolePrint(currentStats, currentRes, cfg)
 			for name, info := range currentRes {
-				prevWeights[name] = info.Weight // update previous
+				prevWeights[name] = info.Weight // Update previous
 			}
 		}
+		utils.ConsolePrint(currentStats, currentRes, cfg)
 
 		/*
 			Log the Result to CSV
@@ -114,7 +114,7 @@ func Start() {
 		/*
 			Update previous stats
 		*/
-		funcs.UpdatePreviousState(prevStats, prevScores, currentStats)
+		funcs.UpdatePreviousState(prevStats, currentStats)
 		prevTime = now
 		iter++
 	}

@@ -6,22 +6,34 @@ import (
 	"sort"
 )
 
-func Sum(arr []int) int {
-	total := 0
-	for _, v := range arr {
-		total += v
-	}
-	return total
-}
+func DistributeWeights(_result map[string]utils.VMRank, weightTotal int) map[int]int {
+	n := len(_result)
 
-func DistributeWeights(arr []int, weightTotal int) []int {
-	sum := Sum(arr)
-	result := make([]int, len(arr))
-	for i, val := range arr {
+	// Buat array bobot berdasarkan deret (1,2,...,n)
+	base := make([]int, len(_result))
+	for i := 0; i < n; i++ {
+		base[i] = i + 1
+	}
+
+	sum := 0
+	for _, v := range base {
+		sum += v
+	}
+
+	result := make([]int, len(base))
+	for i, val := range base {
 		ratio := float64(val) / float64(sum)
 		result[i] = int(math.Round(ratio * float64(weightTotal)))
 	}
-	return result
+
+	sort.Sort(sort.Reverse(sort.IntSlice(result)))
+
+	// Mapping priority ke bobot
+	distributedWeights := make(map[int]int)
+	for i, w := range result {
+		distributedWeights[i+1] = w // prioritas 1 → bobot terbesar
+	}
+	return distributedWeights
 }
 
 func CalcScorePriorityWeight(stats map[string]utils.VMStats, cfg utils.RalbEnv) map[string]utils.VMRank {
@@ -30,7 +42,7 @@ func CalcScorePriorityWeight(stats map[string]utils.VMStats, cfg utils.RalbEnv) 
 		sorted = append(sorted, utils.KV{Key: name, Value: stat.Score})
 	}
 
-	// Sort by value
+	// Sort by Value
 	sort.Slice(sorted, func(i, j int) bool {
 		return sorted[i].Value < sorted[j].Value
 	})
@@ -44,23 +56,8 @@ func CalcScorePriorityWeight(stats map[string]utils.VMStats, cfg utils.RalbEnv) 
 		}
 	}
 
-	n := len(result)
-
-	// Buat array bobot berdasarkan deret (1,2,...,n)
-	base := make([]int, n)
-	for i := 0; i < n; i++ {
-		base[i] = i + 1
-	}
-
 	// Hitung bobot proporsional dari deret ke totalWeight
-	weights := DistributeWeights(base, cfg.HAProxyWeight)
-	sort.Sort(sort.Reverse(sort.IntSlice(weights))) // urut dari besar ke kecil
-
-	// Mapping priority ke bobot
-	priorityToWeight := make(map[int]int)
-	for i, w := range weights {
-		priorityToWeight[i+1] = w // prioritas 1 → bobot terbesar
-	}
+	weights := DistributeWeights(result, cfg.HAProxyWeight)
 
 	// Bangun hasil akhir
 	_result := make(map[string]utils.VMRank)
@@ -68,7 +65,7 @@ func CalcScorePriorityWeight(stats map[string]utils.VMStats, cfg utils.RalbEnv) 
 		_result[name] = utils.VMRank{
 			Value:    vm.Value,
 			Priority: vm.Priority,
-			Weight:   priorityToWeight[vm.Priority],
+			Weight:   weights[vm.Priority],
 		}
 	}
 

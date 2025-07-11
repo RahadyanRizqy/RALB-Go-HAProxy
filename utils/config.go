@@ -66,27 +66,6 @@ func LoadRalbEnv() RalbEnv {
 		netIfaceRate = 12500000
 	}
 
-	serverStart, err := strconv.ParseBool(os.Getenv("SERVER_START"))
-	if err != nil {
-		fmt.Println("Error parsing boolean:", err)
-		serverStart = false
-	}
-
-	serverPort, err := strconv.Atoi(os.Getenv("SERVER_PORT"))
-	if err != nil {
-		serverPort = 9000
-	}
-
-	serverSuccessMessage := os.Getenv("SERVER_SUCCESS_MESSAGE")
-	if serverSuccessMessage == "" {
-		serverSuccessMessage = "RALB OK!"
-	}
-
-	serverErrorMessage := os.Getenv("SERVER_ERROR_MESSAGE")
-	if serverErrorMessage == "" {
-		serverErrorMessage = "RALB NOT OK!"
-	}
-
 	strict, err := strconv.ParseBool(os.Getenv("STRICT"))
 	if err != nil {
 		fmt.Println("Error parsing boolean:", err)
@@ -94,24 +73,20 @@ func LoadRalbEnv() RalbEnv {
 	}
 
 	return RalbEnv{
-		APIToken:             os.Getenv("API_TOKEN"),
-		PveAPIURL:            os.Getenv("PVE_API_URL"),
-		HAProxySock:          os.Getenv("HAPROXY_SOCK"),
-		HAProxyBackend:       os.Getenv("HAPROXY_BACKEND"),
-		VMNames:              parseVMMap(os.Getenv("VM_NAMES")),
-		VMIPs:                parseVMMap(os.Getenv("VM_IPS")),
-		HAProxyPath:          os.Getenv("HAPROXY_PATH"),
-		RalbUpdater:          ralbUpdater,
-		UpdateNotify:         updateNotify,
-		HAProxyWeight:        haproxyWeight,
-		ConsolePrint:         consolePrint,
-		Logger:               logger,
-		FetchDelay:           fetchDelay,
-		NetIfaceRate:         netIfaceRate,
-		ServerStart:          serverStart,
-		ServerPort:           serverPort,
-		ServerSuccessMessage: serverSuccessMessage,
-		ServerErrorMessage:   serverErrorMessage,
-		Strict:               strict,
+		APIToken:       os.Getenv("API_TOKEN"),
+		PveAPIURL:      os.Getenv("PVE_API_URL"),
+		HAProxySock:    os.Getenv("HAPROXY_SOCK"),
+		HAProxyBackend: os.Getenv("HAPROXY_BACKEND"),
+		VMNames:        parseVMMap(os.Getenv("VM_NAMES")),
+		VMIPs:          parseVMMap(os.Getenv("VM_IPS")),
+		HAProxyPath:    os.Getenv("HAPROXY_PATH"),
+		RalbUpdater:    ralbUpdater,
+		UpdateNotify:   updateNotify,
+		HAProxyWeight:  haproxyWeight,
+		ConsolePrint:   consolePrint,
+		Logger:         logger,
+		FetchDelay:     fetchDelay,
+		NetIfaceRate:   netIfaceRate,
+		Strict:         strict,
 	}
 }

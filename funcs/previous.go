@@ -2,11 +2,11 @@ package funcs
 
 import "ralb_go_haproxy/utils"
 
-func CalcPreviousStats(vm utils.VM, delta float64, netIfaceRate float64, lastValidRates map[string]utils.ActiveRates, prevStats map[string]utils.VM, activeRates map[string]utils.ActiveRates) utils.VMStats {
+func CalcPreviousStats(vm utils.VM, delta float64, netIfaceRate float64, lastValidRates map[string]utils.ActiveRates, prevStats map[string]utils.VM, currentRates map[string]utils.ActiveRates) utils.VMStats {
 	stats := utils.VMStats{VM: vm}
 
-	// Calculate network rates
-	rxRate := lastValidRates[vm.Name].Rx // Start with last valid rate
+	// Calc net rates
+	rxRate := lastValidRates[vm.Name].Rx
 	txRate := lastValidRates[vm.Name].Tx
 
 	if prev, ok := prevStats[vm.Name]; ok {
@@ -27,7 +27,7 @@ func CalcPreviousStats(vm utils.VM, delta float64, netIfaceRate float64, lastVal
 
 	// Store current rates
 	stats.Rates = utils.ActiveRates{Rx: rxRate, Tx: txRate}
-	activeRates[vm.Name] = stats.Rates
+	currentRates[vm.Name] = stats.Rates
 
 	// Update last valid rates if we have non-zero values
 	if rxRate > 0 || txRate > 0 {
@@ -42,9 +42,9 @@ func CalcPreviousStats(vm utils.VM, delta float64, netIfaceRate float64, lastVal
 	return stats
 }
 
-func UpdatePreviousState(prevStats map[string]utils.VM, prevScores map[string]float64, stats map[string]utils.VMStats) {
+func UpdatePreviousState(prevStats map[string]utils.VM, stats map[string]utils.VMStats) {
 	for name, stat := range stats {
 		prevStats[name] = stat.VM
-		prevScores[name] = stat.Score
+		// prevScores[name] = stat.Score
 	}
 }
